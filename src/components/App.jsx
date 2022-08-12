@@ -1,5 +1,9 @@
 import React, { Component } from 'react';
 import './App.css';
+import { Statistics } from './Statistics/statistics';
+import { Notification } from './Notification/notification';
+import { FeedbackOptions } from './FeedbackOptions/FeedbackOptions';
+import { Section } from './Section/section';
 
 export class Feedback extends Component {
   state = {
@@ -8,52 +12,38 @@ export class Feedback extends Component {
     bad: 0,
   };
 
-  goodIncrement = () => {
-    this.setState(stateGood => ({
-      good: stateGood.good + 1,
-    }));
-  };
-  neutralIncrement = () => {
-    this.setState(statNeutral => ({
-      neutral: statNeutral.neutral + 1,
-    }));
-  };
-  badIncrement = () => {
-    this.setState(stateBad => ({
-      bad: stateBad.bad + 1,
-    }));
+  handleClickBtn = event => {
+    const { name } = event.target;
+    this.setState(prevState => {
+      return { [name]: prevState[name] + 1 };
+    });
   };
 
   render() {
-    const state = this.state;
-    const total = this.state.good + this.state.neutral + this.state.bad;
+    const { good, neutral, bad } = this.state;
+    const total = good + neutral + bad;
+    const positivePercentage = Math.round((good / total) * 100);
     return (
       <div className="container">
-        <div>
-          <p>Please leave feedback</p>
-          <button className="btn" type="button" onClick={this.goodIncrement}>
-            Good
-          </button>
-          <button className="btn" type="button" onClick={this.neutralIncrement}>
-            Neutral
-          </button>
-          <button className="btn" type="button" onClick={this.badIncrement}>
-            Bad
-          </button>
-        </div>
-        <div>
-          <p>Statistic</p>
-          <ul className="list-feedback">
-            <li>Good {state.good}</li>
-            <li>Neutral {state.neutral}</li>
-            <li>Bad {state.bad}</li>
-            <li>Total {state.good + state.neutral + state.bad} </li>
-            <li>
-              Positive feedback:{' '}
-              {total !== 0 ? Math.round((state.good / total) * 100) : 0}%
-            </li>
-          </ul>
-        </div>
+        <Section title={'Please leave feedback'}>
+          <FeedbackOptions
+            onLeaveFeedback={this.handleClickBtn}
+            options={Object.keys(this.state)}
+          />
+        </Section>
+        <Section title={'Statistics'}>
+          {total === 0 ? (
+            <Notification message={'Feedback no given'} />
+          ) : (
+            <Statistics
+              good={good}
+              neutral={neutral}
+              bad={bad}
+              total={total}
+              positivePercentage={positivePercentage}
+            />
+          )}
+        </Section>
       </div>
     );
   }
